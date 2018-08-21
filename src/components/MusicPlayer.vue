@@ -2,8 +2,7 @@
   <audio :src="url"
          ref="audio"
          @loadedmetadata="loadedmetadata"
-         @timeupdate="timeupdate"
-         controls="controls" />
+         @timeupdate="timeupdate" />
 </template>
 <script>
 export default {
