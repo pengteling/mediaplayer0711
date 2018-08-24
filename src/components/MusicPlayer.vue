@@ -5,6 +5,7 @@
          @timeupdate="timeupdate" />
 </template>
 <script>
+import { EventBus } from '@/EventBus'
 export default {
   data () {
     return {
@@ -65,17 +66,29 @@ export default {
     },
     loadedmetadata () {
       this.duration = this.audio.duration
-      this.$emit('getDuration', this.duration)
+      EventBus.$emit('getDuration', this.duration)
     },
     timeupdate () {
       this.currentTime = this.audio.currentTime
-      this.$emit('getCurrentTime', this.currentTime)
+      EventBus.$emit('getCurrentTime', this.currentTime)
     },
     changeCurrentTime (time) {
       this.currentTime = time
       this.audio.currentTime = time
     }
-
+  },
+  mounted () {
+    EventBus.$on('changeVolume', volume => {
+      this.changeVolume(volume)
+    })
+    EventBus.$on('ChangeProgress', progress => {
+      this.changeCurrentTime(progress)
+      this.audio.oncanplay = () => {
+        if (!this.paused) {
+          this.audio.play()
+        }
+      }
+    })
   }
 }
 </script>
