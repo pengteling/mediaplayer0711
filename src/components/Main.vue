@@ -1,11 +1,12 @@
 <template>
     <div>
         主体
-        <keep-alive>
-            <router-view></router-view>
-        </keep-alive>
+
+        <router-view> </router-view>
+
         <MusicPlayer :url="currentMusic.file"
                      :paused="paused" />
+        <a href="#/list">list</a>
     </div>
 </template>
 
@@ -30,7 +31,7 @@ export default {
             return this.musicList[this.currentIndex]
         }
     },
-    mounted () {
+    created () {
         EventBus.$emit('pushItem', this.currentMusic)
         EventBus.$on('playPause', paused => {
             this.paused = paused

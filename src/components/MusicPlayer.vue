@@ -1,7 +1,6 @@
 <template>
   <audio :src="url"
          ref="audio"
-         @loadedmetadata="loadedmetadata"
          @timeupdate="timeupdate" />
 </template>
 <script>
@@ -55,7 +54,7 @@ export default {
   },
   methods: {
     playPause () {
-      if (this.audio.paused) {
+      if (!this.paused) {
         this.audio.play()
       } else {
         this.audio.pause()
@@ -64,13 +63,11 @@ export default {
     changeVolume (volume) {
       this.audio.volume = (volume / 100) * (volume / 100)
     },
-    loadedmetadata () {
-      this.duration = this.audio.duration
-      EventBus.$emit('getDuration', this.duration)
-    },
     timeupdate () {
       this.currentTime = this.audio.currentTime
       EventBus.$emit('getCurrentTime', this.currentTime)
+      this.duration = this.audio.duration
+      EventBus.$emit('getDuration', this.duration)
     },
     changeCurrentTime (time) {
       this.currentTime = time
@@ -83,12 +80,12 @@ export default {
     })
     EventBus.$on('ChangeProgress', progress => {
       this.changeCurrentTime(progress)
-      this.audio.oncanplay = () => {
-        if (!this.paused) {
-          this.audio.play()
-        }
-      }
     })
+    this.audio.oncanplay = () => {
+      if (!this.paused) {
+        this.audio.play()
+      }
+    }
   }
 }
 </script>

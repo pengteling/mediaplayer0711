@@ -26,6 +26,9 @@ export default {
       EventBus.$emit('changeVolume', volume * 100)
       document.getElementsByClassName('ColorVolume')[0].style.width = volume * 100 + '%'
     }
+  },
+  mounted () {
+    document.getElementsByClassName('ColorVolume')[0].style.width = this.volume + '%'
   }
 }
 </script>

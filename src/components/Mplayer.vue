@@ -5,8 +5,10 @@
       <i @click="playPause">{{this.paused ? "播放" : "暂停"}}</i>
       <i @click="next">下一首</i>
       <div>-{{restTime}}</div>
-      <volumeBar/>
-      <progressBar/>
+      <progressBar :duration='duration'
+                   :currentTime='currentTime' />
+      <volumeBar :volume='volume' />
+
     </div>
   </div>
 </template>
@@ -16,7 +18,9 @@ import { EventBus } from '@/EventBus'
 import volumeBar from '@/components/VolumeBar'
 import progressBar from '@/components/ProgressBar'
 import { formatTime } from '@/components/utilities/formatTime'
+/* import { getPercent } from '@/components/utilities/getPercent' */
 export default {
+  name: 'Mplayer',
   components: {
     volumeBar, progressBar
   },
@@ -24,35 +28,45 @@ export default {
     return {
       currentItem: {},
       repeatType: 'cycle',
-      paused: true,
-      currentTime: 0,
-      duration: 0,
-      volume: 80
+      paused: true
     }
   },
-  mounted () {
+  props: {
+    volume: {
+      type: Number,
+      default: 80
+    },
+    duration: {
+      type: Number,
+      default: 0,
+      required: true
+    },
+    currentTime: {
+      type: Number,
+      default: 0
+    }
+  },
+  created () {
     EventBus.$on('pushItem', currentItem => {
       this.currentItem = currentItem
-    })
-    EventBus.$on('getDuration', duration => {
-      this.duration = duration
-    })
-    EventBus.$on('getCurrentTime', currentTime => {
-      this.currentTime = currentTime
-    })
-    EventBus.$on('play', () => {
-      this.paused = false
     })
   },
   computed: {
     restTime () {
       return formatTime(this.duration - this.currentTime)
+    },
+    currentPercent () {
+      return this.currentTime / this.duration * 100
+    }
+  },
+  watch: {
+    'paused' () {
+      EventBus.$emit('playPause', this.paused)
     }
   },
   methods: {
     playPause () {
       this.paused = !this.paused
-      EventBus.$emit('playPause', this.paused)
     },
     prev () {
       EventBus.$emit('prev')
@@ -60,6 +74,11 @@ export default {
     next () {
       EventBus.$emit('next')
     }
+  },
+  mounted () {
+    EventBus.$on('getCurrentTime', () => {
+      this.paused = false
+    })
   }
 }
 </script>

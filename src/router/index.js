@@ -6,6 +6,7 @@ import MainPage from '@/components/MainPage'
 import Option from '@/components/Option'
 import Lrc from '@/components/Lrc'
 import Mplayer from '@/components/Mplayer'
+import MusicList from '@/components/MusicList'
 
 Vue.use(Router)
 
@@ -23,12 +24,18 @@ export default new Router({
         children: [{
             path: '',
             component: Mplayer,
-            name: 'Mplayer'
+            name: 'Mplayer',
+            props: true
           },
           {
             path: '/lrc',
             component: Lrc,
             name: 'Lrc'
+          },
+          {
+            path: '/list',
+            component: MusicList,
+            name: 'MusicList'
           }
         ]
       },

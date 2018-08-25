@@ -13,9 +13,7 @@ import { getPercent } from '@/components/utilities/getPercent'
 export default {
   data () {
     return {
-      duration: 0,
-      currentTime: 0,
-      getPercent: 0
+
     }
   },
   props: {
@@ -26,23 +24,27 @@ export default {
     barColor: {
       type: String,
       default: '#2f9842'
+    },
+    duration: {
+      type: Number,
+      default: 0,
+      required: true
+    },
+    currentTime: {
+      type: Number,
+      default: 0
     }
   },
   methods: {
     ChangeProgress (e) {
       let progress = (e.clientX - this.$refs.progressbar.getBoundingClientRect().left) / this.$refs.progressbar.clientWidth
       EventBus.$emit('ChangeProgress', progress * this.duration)
-      EventBus.$emit('play')
     }
   },
-  mounted () {
-    EventBus.$on('getDuration', duration => {
-      this.duration = duration
-    })
-    EventBus.$on('getCurrentTime', currentTime => {
-      this.currentTime = currentTime
+  watch: {
+    'currentTime' () {
       document.getElementsByClassName('ColorProgress')[0].style.width = getPercent(this.currentTime, this.duration)
-    })
+    }
   }
 }
 </script>
