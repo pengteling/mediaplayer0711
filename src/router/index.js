@@ -35,7 +35,7 @@ export default new Router({
           {
             path: '/list',
             component: MusicList,
-            name: 'MusicList'
+            name: 'List'
           }
         ]
       },

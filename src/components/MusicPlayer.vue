@@ -1,7 +1,9 @@
 <template>
   <audio :src="url"
          ref="audio"
-         @timeupdate="timeupdate" />
+         @timeupdate="timeupdate"
+         @ended="ended" />
+
 </template>
 <script>
 import { EventBus } from '@/EventBus'
@@ -72,6 +74,9 @@ export default {
     changeCurrentTime (time) {
       this.currentTime = time
       this.audio.currentTime = time
+    },
+    ended () {
+      EventBus.$emit('ended')
     }
   },
   mounted () {
@@ -82,6 +87,10 @@ export default {
       this.changeCurrentTime(progress)
     })
     this.audio.oncanplay = () => {
+      this.currentTime = this.audio.currentTime
+      this.duration = this.audio.duration
+      EventBus.$emit('getCurrentTime', this.currentTime)
+      EventBus.$emit('getDuration', this.duration)
       if (!this.paused) {
         this.audio.play()
       }

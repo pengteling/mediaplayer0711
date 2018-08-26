@@ -8,7 +8,7 @@
       <progressBar :duration='duration'
                    :currentTime='currentTime' />
       <volumeBar :volume='volume' />
-
+      <div>{{ currentMusic.title }}</div>
     </div>
   </div>
 </template>
@@ -26,7 +26,7 @@ export default {
   },
   data () {
     return {
-      currentItem: {},
+      currentMusic: {},
       repeatType: 'cycle',
       paused: true
     }
@@ -46,9 +46,12 @@ export default {
       default: 0
     }
   },
-  created () {
-    EventBus.$on('pushItem', currentItem => {
-      this.currentItem = currentItem
+  mounted () {
+    EventBus.$on('pushItem', currentMusic => {
+      this.currentMusic = currentMusic
+    })
+    EventBus.$on('pushPaused', pushpaused => {
+      this.paused = pushpaused
     })
   },
   computed: {
@@ -63,6 +66,9 @@ export default {
     'paused' () {
       EventBus.$emit('playPause', this.paused)
     }
+    /*     'currentTime' () {
+          this.paused = false
+        } */
   },
   methods: {
     playPause () {
@@ -74,12 +80,12 @@ export default {
     next () {
       EventBus.$emit('next')
     }
-  },
-  mounted () {
-    EventBus.$on('getCurrentTime', () => {
-      this.paused = false
-    })
   }
+  /* mounted () {
+    EventBus.$on('getCurrentTime', () => {
+      
+    })
+  } */
 }
 </script>
 

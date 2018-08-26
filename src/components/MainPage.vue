@@ -19,12 +19,15 @@ export default {
         }
     },
     mounted () {
-        EventBus.$on('getDuration', duration => {
-            this.duration = duration
+        EventBus.$on('pushItem', () => {
+            EventBus.$on('getDuration', duration => {
+                this.duration = duration
+            })
+            EventBus.$on('getCurrentTime', currentTime => {
+                this.currentTime = currentTime
+            })
         })
-        EventBus.$on('getCurrentTime', currentTime => {
-            this.currentTime = currentTime
-        })
+
         EventBus.$on('changeVolume', volume => {
             this.volume = volume
         })

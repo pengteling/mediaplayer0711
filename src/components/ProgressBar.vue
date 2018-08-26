@@ -45,6 +45,11 @@ export default {
     'currentTime' () {
       document.getElementsByClassName('ColorProgress')[0].style.width = getPercent(this.currentTime, this.duration)
     }
+  },
+  mounted () {
+    EventBus.$on('pushCurrent', () => {
+      document.getElementsByClassName('ColorProgress')[0].style.width = getPercent(this.currentTime, this.duration)
+    })
   }
 }
 </script>

@@ -2,11 +2,11 @@
     <div>
         主体
 
-        <router-view> </router-view>
-
+        <router-view></router-view>
         <MusicPlayer :url="currentMusic.file"
                      :paused="paused" />
         <a href="#/list">list</a>
+        <a href="#/">main</a>
     </div>
 </template>
 
@@ -31,7 +31,30 @@ export default {
             return this.musicList[this.currentIndex]
         }
     },
-    created () {
+    watch: {
+        'currentMusic' (currentMusic) {
+            EventBus.$emit('pushItem', currentMusic)
+        },
+        '$route' (to, form) {
+            if (to.name === 'List') {
+                this.$nextTick(() => {
+                    EventBus.$emit('pushList', {
+                        musicList: this.musicList,
+                        currentIndex: this.currentIndex
+                    })
+                })
+            }
+            if (to.name === 'Mplayer') {
+                this.$nextTick(() => {
+                    EventBus.$emit('pushItem', this.currentMusic)
+                    EventBus.$emit('pushPaused', this.paused)
+                    EventBus.$emit('pushCurrent')
+                    console.log(this.paused)
+                })
+            }
+        }
+    },
+    mounted () {
         EventBus.$emit('pushItem', this.currentMusic)
         EventBus.$on('playPause', paused => {
             this.paused = paused
@@ -53,6 +76,17 @@ export default {
             } else {
                 this.currentIndex = this.currentIndex + 1
             }
+        })
+        EventBus.$on('changeIndex', musicIndex => {
+            this.currentIndex = musicIndex - 1
+            this.paused = false
+        })
+        EventBus.$on('ended', () => {
+            EventBus.$emit('next')
+        })
+        EventBus.$emit('pushList', {
+            musicList: this.musicList,
+            currentIndex: this.currentIndex
         })
     }
 }
