@@ -10,7 +10,11 @@
 </template>
 
 <script>
+
 import { EventBus } from '@/EventBus'
+let html = document.documentElement
+let layout = html.clientWidth || document.body.clientWidth
+html.style.fontSize = layout / 3.75 + 'px'
 export default {
   name: 'List',
   data () {
@@ -44,6 +48,10 @@ export default {
 </script>
 
 <style>
+* {
+  margin: 0;
+  padding: 0;
+}
 li {
   list-style-type: none;
 }

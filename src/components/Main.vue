@@ -1,13 +1,17 @@
 <template>
     <div>
-        主体
-
-        <router-view></router-view>
+        <transition name="fade"
+                    mode="out-in">
+            <router-view></router-view>
+        </transition>
         <MusicPlayer :url="currentMusic.file"
                      :paused="paused" />
-        <a href="#/list">list</a>
-        <a href="#/">main</a>
-        <a href="#/lrc">lrc</a>
+        <div>
+            <a href="#/list">list</a>
+            <a href="#/">main</a>
+            <a href="#/lrc">lrc</a>
+        </div>
+
     </div>
 </template>
 
@@ -15,6 +19,9 @@
 import MusicPlayer from '@/components/MusicPlayer'
 import { MUSIC_LIST } from '@/assets/musicList'
 import { EventBus } from '@/EventBus'
+let html = document.documentElement
+let layout = html.clientWidth || document.body.clientWidth
+html.style.fontSize = layout / 3.75 + 'px'
 export default {
     name: 'Main',
     components: {
@@ -25,7 +32,8 @@ export default {
             musicList: MUSIC_LIST,
             currentIndex: 0,
             paused: true,
-            playMode: 'order'
+            playMode: 'order',
+            transitionName: ''
         }
     },
     computed: {
@@ -37,7 +45,7 @@ export default {
         'currentMusic' (currentMusic) {
             EventBus.$emit('pushItem', currentMusic)
         },
-        '$route' (to, form) {
+        '$route' (to, from) {
             if (to.name === 'List') {
                 this.$nextTick(() => {
                     EventBus.$emit('pushList', {
@@ -102,9 +110,13 @@ export default {
         })
         EventBus.$on('ended', () => {
             if (this.playMode === 'cycle') {
+                EventBus.$emit('pushLrc', this.currentMusic.lrc)
+                EventBus.$emit('refreshLrc')
                 EventBus.$emit('ChangeProgress', 0)
             } else {
                 EventBus.$emit('next')
+                EventBus.$emit('pushLrc', this.currentMusic.lrc)
+                EventBus.$emit('refreshLrc')
                 console.log(this.musicList.length, this.currentIndex)
             }
         })
@@ -117,4 +129,42 @@ export default {
 </script>
 
 <style>
+* {
+  font-size: 0.25rem;
+}
+div {
+  overflow: hidden;
+  width: 3.75rem;
+}
+/* .fade-enter-active {
+  transition: all 0.5s ease;
+}
+.fade-leave-active {
+  transition: all 0.5s ease;
+}
+.fade-enter,
+.fade-leave-to {
+  transform: translateX(10px);
+  opacity: 0;
+} */
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 1s;
+  position: relative;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+.fade-enter {
+  left: 50px;
+}
+.fade-leave-to {
+  left: -50px;
+}
+.fade-enter-to,
+.fade-leave {
+  opacity: 1;
+  left: 0;
+}
 </style>

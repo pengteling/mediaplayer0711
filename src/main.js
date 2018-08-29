@@ -3,7 +3,9 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-
+let html = document.documentElement
+let layout = html.clientWidth || document.body.clientWidth
+html.style.fontSize = layout / 3.75 + 'px'
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

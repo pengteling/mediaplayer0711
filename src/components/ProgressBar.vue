@@ -10,6 +10,9 @@
 <script>
 import { EventBus } from '@/EventBus'
 import { getPercent } from '@/components/utilities/getPercent'
+let html = document.documentElement
+let layout = html.clientWidth || document.body.clientWidth
+html.style.fontSize = layout / 3.75 + 'px'
 export default {
   data () {
     return {
@@ -55,8 +58,12 @@ export default {
 </script>
 
 <style>
+* {
+  margin: 0;
+  padding: 0;
+}
 .ChangeProgress {
-  width: 500px;
+  width: 3.75rem;
   height: 10px;
   background-color: #f0f0f0;
 }

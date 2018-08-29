@@ -1,9 +1,11 @@
 <template>
-  <div>
-    <ul>
+  <div class="lrccontainer"
+       ref="lrccontainer">
+    <ul ref="lrcul"
+        class="ul">
       <li v-for='(lrc,index) in this.lrcData'
           :key=index
-          ref="lrcli"
+          :ref='isCurrentLi(index)'
           :class='isCurrentLi(index)'>
         {{lrc[1]}}
       </li>
@@ -13,6 +15,9 @@
 <script>
 import { EventBus } from '@/EventBus'
 import { parseLrc } from '@/components/utilities/parseLrc'
+let html = document.documentElement
+let layout = html.clientWidth || document.body.clientWidth
+html.style.fontSize = layout / 3.75 + 'px'
 export default {
   name: 'Lrc',
   data () {
@@ -20,6 +25,12 @@ export default {
       lrcData: [],
       currentTime: 0,
       currentLi: 0
+    }
+  },
+  watch: {
+    'currentLi' () {
+      let h = this.$refs.currentLi[0].offsetTop - 245
+      document.querySelector('.lrccontainer').scrollTop = h
     }
   },
   computed: {
@@ -38,21 +49,41 @@ export default {
       this.currentLi = index
     }
   },
-  mounted () {
+  /*     created () {
+        EventBus.$on('pushLrc', lrcData => {
+          this.lrcData = parseLrc(lrcData)
+        })
+  }, */
+  created () {
     EventBus.$on('pushLrc', lrcData => {
       this.lrcData = parseLrc(lrcData)
     })
     EventBus.$on('getCurrentTime', currentTime => {
       this.currentTime = currentTime
+      if (currentTime < 0.5) {
+        this.currentLi = 0
+      }
+    })
+    EventBus.$on('refreshLrc', () => {
+      document.querySelector('.lrccontainer').scrollTop = 0
     })
   }
 }
 </script>
 <style>
+* {
+  margin: 0;
+  padding: 0;
+}
 li {
   list-style-type: none;
 }
 .currentLi {
   color: blueviolet;
+}
+.lrccontainer {
+  height: 7rem;
+  overflow: scroll;
+  scroll-behavior: smooth;
 }
 </style >

@@ -1,10 +1,20 @@
 <template>
-  <div>
+  <div class="container">
     <div>
-      <i @click="prev">上一首</i>
-      <i @click="playPause">{{this.paused ? "播放" : "暂停"}}</i>
-      <i @click="next">下一首</i>
-      <i @click='playModeChange(playMode)'>{{playMode}}</i>
+      <div>
+        <i @click="prev">
+          <div class="prev"></div>
+        </i>
+        <i @click="playPause">
+          <div :class='this.paused ? "play" : "paused"'></div>
+        </i>
+        <i @click="next">
+          <div class="next"></div>
+        </i>
+        <i @click='playModeChange(playMode)'>
+          <div :class="this.playMode"></div>
+        </i>
+      </div>
       <div>-{{restTime}}</div>
       <progressBar :duration='duration'
                    :currentTime='currentTime' />
@@ -18,6 +28,9 @@ import { EventBus } from '@/EventBus'
 import volumeBar from '@/components/VolumeBar'
 import progressBar from '@/components/ProgressBar'
 import { formatTime } from '@/components/utilities/formatTime'
+let html = document.documentElement
+let layout = html.clientWidth || document.body.clientWidth
+html.style.fontSize = layout / 3.75 + 'px'
 /* import { getPercent } from '@/components/utilities/getPercent' */
 export default {
   name: 'Mplayer',
@@ -29,7 +42,7 @@ export default {
       currentMusic: {},
       repeatType: 'cycle',
       paused: true,
-      playMode: '顺序播放'
+      playMode: 'order'
     }
   },
   props: {
@@ -84,16 +97,16 @@ export default {
     playModeChange (playMode) {
       console.log(playMode)
       switch (playMode) {
-        case '顺序播放':
-          this.playMode = '乱序播放'
+        case 'order':
+          this.playMode = 'random'
           EventBus.$emit('playModeChange', 'random')
           break
-        case '乱序播放':
-          this.playMode = '单曲循环'
+        case 'random':
+          this.playMode = 'cycle'
           EventBus.$emit('playModeChange', 'cycle')
           break
-        case '单曲循环':
-          this.playMode = '顺序播放'
+        case 'cycle':
+          this.playMode = 'order'
           EventBus.$emit('playModeChange', 'order')
           break
       }
@@ -108,4 +121,74 @@ export default {
 </script>
 
 <style>
+* {
+  margin: 0;
+  padding: 0;
+}
+.container {
+  width: 3.75rem;
+}
+.prev {
+  background-size: 12rem 18rem;
+  background-image: url(../image/icon.png);
+  background-position-x: 9rem;
+  background-position-y: -1.1rem;
+  /* background-color: black; */
+  height: 1rem;
+  width: 1rem;
+}
+.play {
+  background-size: 12rem 18rem;
+  background-image: url(../image/icon.png);
+  background-position-x: 6.5rem;
+  background-position-y: -1.1rem;
+  /* background-color: black; */
+  height: 1rem;
+  width: 1rem;
+}
+.paused {
+  background-size: 12rem 18rem;
+  background-image: url(../image/icon.png);
+  background-position-x: 4rem;
+  background-position-y: -1.1rem;
+  /* background-color: black; */
+  height: 1rem;
+  width: 1rem;
+}
+.next {
+  background-size: 12rem 18rem;
+  background-image: url(../image/icon.png);
+  background-position-x: 7.8rem;
+  background-position-y: -1.1rem;
+  /* background-color: black; */
+  height: 1rem;
+  width: 1rem;
+}
+.order {
+  background-size: 12rem 18rem;
+  background-image: url(../image/icon.png);
+  background-position-x: 2.75rem;
+  background-position-y: -2.35rem;
+  /* background-color: black; */
+  height: 1rem;
+  width: 1rem;
+}
+.random {
+  background-size: 12rem 18rem;
+  background-image: url(../image/icon.png);
+  background-position-x: 5.24rem;
+  background-position-y: -2.35rem;
+  /* background-color: black; */
+  height: 1rem;
+  width: 1rem;
+}
+.cycle {
+  background-size: 12rem 18rem;
+  background-image: url(../image/icon.png);
+  background-position-x: 4rem;
+  background-position-y: -2.35rem;
+  /* background-color: black; */
+  height: 1rem;
+  width: 1rem;
+}
 </style>
