@@ -3,7 +3,9 @@
     <li v-for="(musicList, index) in this.musicList"
         :key="index"
         @click='changeIndex(musicList)'
-        :class='{isPlaying:index==eventId-1}'>{{musicList.title}}-{{musicList.artist}}</li>
+        :class='{isPlaying:index==eventId-1}'>{{musicList.title}}-{{musicList.artist}}
+      <p @click='deleteItem'>删除</p>
+    </li>
   </div>
 </template>
 
@@ -22,6 +24,12 @@ export default {
     changeIndex (event) {
       EventBus.$emit('changeIndex', event.id)
       this.eventId = event.id
+      this.$router.push({
+        path: '/'
+      })
+    },
+    deleteItem () {
+      alert('delete')
     }
   },
   mounted () {

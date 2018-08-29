@@ -6,7 +6,6 @@
                      :volume='volume'></router-view>
     </div>
 </template>
-
 <script>
 import { EventBus } from '@/EventBus'
 export default {
@@ -27,7 +26,6 @@ export default {
                 this.currentTime = currentTime
             })
         })
-
         EventBus.$on('changeVolume', volume => {
             this.volume = volume
         })

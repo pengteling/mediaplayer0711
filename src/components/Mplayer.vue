@@ -4,6 +4,7 @@
       <i @click="prev">上一首</i>
       <i @click="playPause">{{this.paused ? "播放" : "暂停"}}</i>
       <i @click="next">下一首</i>
+      <i @click='playModeChange(playMode)'>{{playMode}}</i>
       <div>-{{restTime}}</div>
       <progressBar :duration='duration'
                    :currentTime='currentTime' />
@@ -12,7 +13,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import { EventBus } from '@/EventBus'
 import volumeBar from '@/components/VolumeBar'
@@ -28,7 +28,8 @@ export default {
     return {
       currentMusic: {},
       repeatType: 'cycle',
-      paused: true
+      paused: true,
+      playMode: '顺序播放'
     }
   },
   props: {
@@ -79,6 +80,23 @@ export default {
     },
     next () {
       EventBus.$emit('next')
+    },
+    playModeChange (playMode) {
+      console.log(playMode)
+      switch (playMode) {
+        case '顺序播放':
+          this.playMode = '乱序播放'
+          EventBus.$emit('playModeChange', 'random')
+          break
+        case '乱序播放':
+          this.playMode = '单曲循环'
+          EventBus.$emit('playModeChange', 'cycle')
+          break
+        case '单曲循环':
+          this.playMode = '顺序播放'
+          EventBus.$emit('playModeChange', 'order')
+          break
+      }
     }
   }
   /* mounted () {

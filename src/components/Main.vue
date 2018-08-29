@@ -7,6 +7,7 @@
                      :paused="paused" />
         <a href="#/list">list</a>
         <a href="#/">main</a>
+        <a href="#/lrc">lrc</a>
     </div>
 </template>
 
@@ -23,7 +24,8 @@ export default {
         return {
             musicList: MUSIC_LIST,
             currentIndex: 0,
-            paused: true
+            paused: true,
+            playMode: 'order'
         }
     },
     computed: {
@@ -52,9 +54,17 @@ export default {
                     console.log(this.paused)
                 })
             }
+            if (to.name === 'Lrc') {
+                this.$nextTick(() => {
+                    EventBus.$emit('pushLrc', this.currentMusic.lrc)
+                })
+            }
         }
     },
     mounted () {
+        EventBus.$on('playModeChange', mode => {
+            this.playMode = mode
+        })
         EventBus.$emit('pushItem', this.currentMusic)
         EventBus.$on('playPause', paused => {
             this.paused = paused
@@ -71,10 +81,19 @@ export default {
         EventBus.$on('next', () => {
             let leng = this.musicList.length
             let index = this.currentIndex
-            if (index >= leng - 1) {
-                this.currentIndex = 0
+            if (this.playMode !== 'random') {
+                if (index >= leng - 1) {
+                    this.currentIndex = 0
+                } else {
+                    this.currentIndex = this.currentIndex + 1
+                }
             } else {
-                this.currentIndex = this.currentIndex + 1
+                let randomSong = Math.floor(Math.random() * leng)
+                if (randomSong === this.currentIndex) {
+                    this.currentIndex = Math.floor(Math.random() * leng)
+                } else {
+                    this.currentIndex = randomSong
+                }
             }
         })
         EventBus.$on('changeIndex', musicIndex => {
@@ -82,7 +101,12 @@ export default {
             this.paused = false
         })
         EventBus.$on('ended', () => {
-            EventBus.$emit('next')
+            if (this.playMode === 'cycle') {
+                EventBus.$emit('ChangeProgress', 0)
+            } else {
+                EventBus.$emit('next')
+                console.log(this.musicList.length, this.currentIndex)
+            }
         })
         EventBus.$emit('pushList', {
             musicList: this.musicList,
