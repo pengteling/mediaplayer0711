@@ -35,8 +35,10 @@ export default {
   },
   watch: {
     'currentLi' () {
-      let h = document.getElementsByClassName('currentLi')[0].offsetTop - 150
-      this.$refs.lrccontainer.scrollTop = h
+      window.onload = () => {
+        let h = document.getElementsByClassName('currentLi')[0].offsetTop - 150
+        this.$refs.lrccontainer.scrollTop = h
+      }
     }
   },
   computed: {

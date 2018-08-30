@@ -9,7 +9,7 @@
     <div class="listContainer">
       <li v-for="(musicList, index) in this.musicList"
           :key="`${musicList}-${index}`"
-          @click='changeIndex(musicList)'
+          @click='changeIndex(index)'
           class="musicList"
           :class='{isPlaying:index==eventId-1}'>{{musicList.title}}-{{musicList.artist}}
         <p @click.stop='deleteItem(index)'>删除</p>
@@ -31,10 +31,10 @@ export default {
     }
   },
   methods: {
-    changeIndex (event) {
-      console.log(event)
-      EventBus.$emit('changeIndex', event.id)
-      this.eventId = event.id
+    changeIndex (index) {
+      console.log(index)
+      EventBus.$emit('changeIndex', index)
+      this.eventId = index
     },
     deleteItem (e) {
       console.log(e)

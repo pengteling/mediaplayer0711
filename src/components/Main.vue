@@ -122,7 +122,7 @@ export default {
         })
         EventBus.$on('changeIndex', musicIndex => {
             this.paused = false
-            this.currentIndex = musicIndex - 1
+            this.currentIndex = musicIndex
             EventBus.$emit('pushLrc', this.currentMusic.lrc)
             EventBus.$emit('pushPaused', this.paused)
         })
@@ -136,15 +136,25 @@ export default {
             }
         })
         EventBus.$on('deleteMusicItem', e => {
+            let oldCurIndex = this.currentIndex
             if (this.musicList.length > 1) {
+                let deleteIndex = this.musicList.indexOf(this.musicList[e])
                 this.musicList = this.musicList.filter(item => item !== this.musicList[e])
-                EventBus.$emit('pushList', {
-                    musicList: this.musicList,
-                    currentIndex: this.currentIndex
-                })
+                if (oldCurIndex > deleteIndex) {
+                    this.currentIndex = oldCurIndex - 1
+                } else if (oldCurIndex < deleteIndex) {
+                    // 不变
+                } else {
+                    this.currentIndex = oldCurIndex % this.musicList.length
+                }
+                /*  if (this.musicList.length > 1) {
+                     this.musicList = this.musicList.filter(item => item !== this.musicList[e])
+                     EventBus.$emit('pushList', {
+                         musicList: this.musicList,
+                         currentIndex: this.currentIndex
+                     })
+                 } */
             }
-
-            /* this.musicList = this.musicList.filter(this.musicList !== this.musicList[e]) */
         })
         EventBus.$emit('pushList', {
             musicList: this.musicList,
