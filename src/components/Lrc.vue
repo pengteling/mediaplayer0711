@@ -1,23 +1,29 @@
 <template>
-  <div class="lrccontainer"
-       ref="lrccontainer">
-    <ul ref="lrcul"
-        class="ul">
-      <li v-for='(lrc,index) in this.lrcData'
-          :key=index
-          :ref='isCurrentLi(index)'
-          :class='isCurrentLi(index)'>
-        {{lrc[1]}}
-      </li>
-    </ul>
+  <div>
+    <div class="header">
+      <div class="back"
+           @click='back'>
+      </div>
+      <div class="lrcTitle">歌词</div>
+    </div>
+    <div class="lrccontainer"
+         ref="lrccontainer">
+      <ul ref="lrcul"
+          class="ul">
+        <li v-for='(lrc,index) in this.lrcData'
+            :key=index
+            :ref='isCurrentLi(index)'
+            :class='isCurrentLi(index)'
+            class="li">
+          {{lrc[1]}}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 <script>
 import { EventBus } from '@/EventBus'
 import { parseLrc } from '@/components/utilities/parseLrc'
-let html = document.documentElement
-let layout = html.clientWidth || document.body.clientWidth
-html.style.fontSize = layout / 3.75 + 'px'
 export default {
   name: 'Lrc',
   data () {
@@ -29,8 +35,8 @@ export default {
   },
   watch: {
     'currentLi' () {
-      let h = this.$refs.currentLi[0].offsetTop - 245
-      document.querySelector('.lrccontainer').scrollTop = h
+      let h = document.getElementsByClassName('currentLi')[0].offsetTop - 150
+      this.$refs.lrccontainer.scrollTop = h
     }
   },
   computed: {
@@ -47,13 +53,12 @@ export default {
   methods: {
     currentLiA (index) {
       this.currentLi = index
+      EventBus.$emit('currentLrc', this.lrcData[index][1])
+    },
+    back () {
+      this.$router.push('/')
     }
   },
-  /*     created () {
-        EventBus.$on('pushLrc', lrcData => {
-          this.lrcData = parseLrc(lrcData)
-        })
-  }, */
   created () {
     EventBus.$on('pushLrc', lrcData => {
       this.lrcData = parseLrc(lrcData)
@@ -77,13 +82,46 @@ export default {
 }
 li {
   list-style-type: none;
+  font-size: 15px;
 }
 .currentLi {
   color: blueviolet;
+  font-size: 18px;
 }
 .lrccontainer {
-  height: 7rem;
+  position: absolute;
+  top: 10vh;
+  height: 65vh;
+  width: 100vw;
   overflow: scroll;
   scroll-behavior: smooth;
+  text-align: center;
+}
+.header {
+  width: 100vw;
+  height: 45px;
+  position: fixed;
+  border-bottom: #f0f0f0 1px solid;
+  display: flex;
+  flex: 1;
+}
+.lrcTitle {
+  position: absolute;
+  width: 100vw;
+  text-align: center;
+  font-size: 22px;
+  line-height: 50px;
+}
+.back {
+  position: relative;
+  top: -25px;
+  left: -25px;
+  width: 100px;
+  height: 100px;
+  background-image: url(../image/icon.png);
+  background-position-x: 520px;
+  background-position-y: -360px;
+  transform: scale(0.5);
+  z-index: 10;
 }
 </style >

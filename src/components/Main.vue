@@ -2,16 +2,17 @@
     <div>
         <transition name="fade"
                     mode="out-in">
-            <router-view></router-view>
+            <keep-alive>
+                <router-view></router-view>
+            </keep-alive>
         </transition>
         <MusicPlayer :url="currentMusic.file"
                      :paused="paused" />
         <div>
-            <a href="#/list">list</a>
+            <!-- <a href="#/list">list</a>
             <a href="#/">main</a>
-            <a href="#/lrc">lrc</a>
+            <a href="#/lrc">lrc</a> -->
         </div>
-
     </div>
 </template>
 
@@ -19,9 +20,9 @@
 import MusicPlayer from '@/components/MusicPlayer'
 import { MUSIC_LIST } from '@/assets/musicList'
 import { EventBus } from '@/EventBus'
-let html = document.documentElement
+/* let html = document.documentElement
 let layout = html.clientWidth || document.body.clientWidth
-html.style.fontSize = layout / 3.75 + 'px'
+html.style.fontSize = layout / 3.75 + 'px' */
 export default {
     name: 'Main',
     components: {
@@ -44,6 +45,11 @@ export default {
     watch: {
         'currentMusic' (currentMusic) {
             EventBus.$emit('pushItem', currentMusic)
+            EventBus.$emit('pushLrc', this.currentMusic.lrc)
+            EventBus.$emit('pushList', {
+                musicList: this.musicList,
+                currentIndex: this.currentIndex
+            })
         },
         '$route' (to, from) {
             if (to.name === 'List') {
@@ -59,7 +65,6 @@ export default {
                     EventBus.$emit('pushItem', this.currentMusic)
                     EventBus.$emit('pushPaused', this.paused)
                     EventBus.$emit('pushCurrent')
-                    console.log(this.paused)
                 })
             }
             if (to.name === 'Lrc') {
@@ -67,9 +72,20 @@ export default {
                     EventBus.$emit('pushLrc', this.currentMusic.lrc)
                 })
             }
+            if (to.name === 'Cover') {
+                this.$nextTick(() => {
+                    EventBus.$emit('pushItem', this.currentMusic)
+                    EventBus.$emit('pushPaused', this.paused)
+                })
+            }
         }
     },
     mounted () {
+        EventBus.$emit('pushList', {
+            musicList: this.musicList,
+            currentIndex: this.currentIndex
+        })
+        EventBus.$emit('pushLrc', this.currentMusic.lrc)
         EventBus.$on('playModeChange', mode => {
             this.playMode = mode
         })
@@ -105,20 +121,30 @@ export default {
             }
         })
         EventBus.$on('changeIndex', musicIndex => {
-            this.currentIndex = musicIndex - 1
             this.paused = false
+            this.currentIndex = musicIndex - 1
+            EventBus.$emit('pushLrc', this.currentMusic.lrc)
+            EventBus.$emit('pushPaused', this.paused)
         })
         EventBus.$on('ended', () => {
             if (this.playMode === 'cycle') {
-                EventBus.$emit('pushLrc', this.currentMusic.lrc)
                 EventBus.$emit('refreshLrc')
                 EventBus.$emit('ChangeProgress', 0)
             } else {
                 EventBus.$emit('next')
-                EventBus.$emit('pushLrc', this.currentMusic.lrc)
                 EventBus.$emit('refreshLrc')
-                console.log(this.musicList.length, this.currentIndex)
             }
+        })
+        EventBus.$on('deleteMusicItem', e => {
+            if (this.musicList.length > 1) {
+                this.musicList = this.musicList.filter(item => item !== this.musicList[e])
+                EventBus.$emit('pushList', {
+                    musicList: this.musicList,
+                    currentIndex: this.currentIndex
+                })
+            }
+
+            /* this.musicList = this.musicList.filter(this.musicList !== this.musicList[e]) */
         })
         EventBus.$emit('pushList', {
             musicList: this.musicList,
@@ -135,36 +161,5 @@ export default {
 div {
   overflow: hidden;
   width: 3.75rem;
-}
-/* .fade-enter-active {
-  transition: all 0.5s ease;
-}
-.fade-leave-active {
-  transition: all 0.5s ease;
-}
-.fade-enter,
-.fade-leave-to {
-  transform: translateX(10px);
-  opacity: 0;
-} */
-.fade-enter-active,
-.fade-leave-active {
-  transition: all 1s;
-  position: relative;
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
-.fade-enter {
-  left: 50px;
-}
-.fade-leave-to {
-  left: -50px;
-}
-.fade-enter-to,
-.fade-leave {
-  opacity: 1;
-  left: 0;
 }
 </style>

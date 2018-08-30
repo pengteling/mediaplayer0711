@@ -1,48 +1,52 @@
 <template>
   <div class="container">
     <div>
-      <div>
-        <i @click="prev">
-          <div class="prev"></div>
-        </i>
-        <i @click="playPause">
-          <div :class='this.paused ? "play" : "paused"'></div>
-        </i>
-        <i @click="next">
-          <div class="next"></div>
-        </i>
-        <i @click='playModeChange(playMode)'>
-          <div :class="this.playMode"></div>
-        </i>
+      <div class="controllerContainer">
+        <div :class="this.playMode"
+             @click='playModeChange(playMode)'></div>
+        <div class="prev"
+             @click="prev"></div>
+        <div :class='this.paused ? "play" : "paused"'
+             @click="playPause"></div>
+        <div class="next"
+             @click="next"></div>
+        <div class="playList"
+             @click='playList'></div>
       </div>
-      <div>-{{restTime}}</div>
       <progressBar :duration='duration'
                    :currentTime='currentTime' />
-      <volumeBar :volume='volume' />
-      <div>{{ currentMusic.title }}</div>
+      <!-- <volumeBar :volume='volume' /> -->
+      <transition :name="transitionName">
+        <keep-alive>
+          <router-view :duration='duration'
+                       :currentTime='currentTime'
+                       :volume='volume'></router-view>
+        </keep-alive>
+      </transition>
+      <div class="lrcPage">
+        <lrcComponents />
+      </div>
     </div>
   </div>
 </template>
 <script>
 import { EventBus } from '@/EventBus'
+import lrcComponents from '@/components/Lrc'
 import volumeBar from '@/components/VolumeBar'
 import progressBar from '@/components/ProgressBar'
-import { formatTime } from '@/components/utilities/formatTime'
-let html = document.documentElement
-let layout = html.clientWidth || document.body.clientWidth
-html.style.fontSize = layout / 3.75 + 'px'
-/* import { getPercent } from '@/components/utilities/getPercent' */
 export default {
   name: 'Mplayer',
   components: {
-    volumeBar, progressBar
+    volumeBar, progressBar, lrcComponents
   },
   data () {
     return {
       currentMusic: {},
       repeatType: 'cycle',
       paused: true,
-      playMode: 'order'
+      playMode: 'order',
+      currentLrc: '',
+      transitionName: ''
     }
   },
   props: {
@@ -61,6 +65,9 @@ export default {
     }
   },
   mounted () {
+    EventBus.$on('currentLrc', lrc => {
+      this.currentLrc = lrc
+    })
     EventBus.$on('pushItem', currentMusic => {
       this.currentMusic = currentMusic
     })
@@ -69,9 +76,6 @@ export default {
     })
   },
   computed: {
-    restTime () {
-      return formatTime(this.duration - this.currentTime)
-    },
     currentPercent () {
       return this.currentTime / this.duration * 100
     }
@@ -79,12 +83,17 @@ export default {
   watch: {
     'paused' () {
       EventBus.$emit('playPause', this.paused)
+    },
+    '$route' (to, from) {
+      const toDepth = to.path.length
+      const fromDepth = from.path.length
+      this.transitionName = toDepth < fromDepth ? 'slide-right' : 'slide-left'
     }
-    /*     'currentTime' () {
-          this.paused = false
-        } */
   },
   methods: {
+    playList () {
+      this.$router.push('list')
+    },
     playPause () {
       this.paused = !this.paused
     },
@@ -95,7 +104,6 @@ export default {
       EventBus.$emit('next')
     },
     playModeChange (playMode) {
-      console.log(playMode)
       switch (playMode) {
         case 'order':
           this.playMode = 'random'
@@ -112,11 +120,6 @@ export default {
       }
     }
   }
-  /* mounted () {
-    EventBus.$on('getCurrentTime', () => {
-      
-    })
-  } */
 }
 </script>
 
@@ -126,12 +129,12 @@ export default {
   padding: 0;
 }
 .container {
-  width: 3.75rem;
+  width: 100vw;
 }
 .prev {
   background-size: 12rem 18rem;
   background-image: url(../image/icon.png);
-  background-position-x: 9rem;
+  background-position-x: 8.88rem;
   background-position-y: -1.1rem;
   /* background-color: black; */
   height: 1rem;
@@ -140,7 +143,7 @@ export default {
 .play {
   background-size: 12rem 18rem;
   background-image: url(../image/icon.png);
-  background-position-x: 6.5rem;
+  background-position-x: 6.38rem;
   background-position-y: -1.1rem;
   /* background-color: black; */
   height: 1rem;
@@ -149,7 +152,7 @@ export default {
 .paused {
   background-size: 12rem 18rem;
   background-image: url(../image/icon.png);
-  background-position-x: 4rem;
+  background-position-x: 3.88rem;
   background-position-y: -1.1rem;
   /* background-color: black; */
   height: 1rem;
@@ -158,7 +161,7 @@ export default {
 .next {
   background-size: 12rem 18rem;
   background-image: url(../image/icon.png);
-  background-position-x: 7.8rem;
+  background-position-x: 7.68rem;
   background-position-y: -1.1rem;
   /* background-color: black; */
   height: 1rem;
@@ -167,7 +170,7 @@ export default {
 .order {
   background-size: 12rem 18rem;
   background-image: url(../image/icon.png);
-  background-position-x: 2.75rem;
+  background-position-x: 2.63rem;
   background-position-y: -2.35rem;
   /* background-color: black; */
   height: 1rem;
@@ -176,7 +179,7 @@ export default {
 .random {
   background-size: 12rem 18rem;
   background-image: url(../image/icon.png);
-  background-position-x: 5.24rem;
+  background-position-x: 5.12rem;
   background-position-y: -2.35rem;
   /* background-color: black; */
   height: 1rem;
@@ -185,10 +188,89 @@ export default {
 .cycle {
   background-size: 12rem 18rem;
   background-image: url(../image/icon.png);
-  background-position-x: 4rem;
+  background-position-x: 3.88rem;
   background-position-y: -2.35rem;
   /* background-color: black; */
   height: 1rem;
   width: 1rem;
+}
+.playList {
+  background-size: 12rem 18rem;
+  background-image: url(../image/icon.png);
+  background-position-x: -1.84rem;
+  background-position-y: -9.85rem;
+  /* background-color: black; */
+  height: 1rem;
+  width: 1rem;
+}
+.controllerContainer {
+  display: flex;
+  position: fixed;
+  width: 100vw;
+  flex: 1;
+  bottom: 8vh;
+  justify-content: space-around;
+  flex-grow: 1;
+}
+.controllerContainer div {
+  transform: scale(0.8);
+}
+
+.titleContainer {
+  position: fixed;
+  width: 100vw;
+  top: 50vh;
+  text-align: center;
+  font-size: 18px;
+}
+.lrcPage {
+  display: none;
+}
+.lrcContainer {
+  position: fixed;
+  width: 100vw;
+  top: 60vh;
+  text-align: center;
+  font-size: 14px;
+}
+.slide-left-enter-active,
+.slide-left-leave-active {
+  transition: all 1s;
+  position: relative;
+}
+.slide-left-enter,
+.slide-left-leave-to {
+  opacity: 0;
+}
+.slide-left-enter {
+  left: 100vw;
+}
+.slide-left-leave-to {
+  left: -100vw;
+}
+.slide-left-enter-to,
+.slide-left-leave {
+  opacity: 1;
+  left: 0;
+}
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: all 1s;
+  position: relative;
+}
+.slide-right-enter,
+.slide-right-leave-to {
+  opacity: 0;
+}
+.slide-right-enter {
+  right: 100vw;
+}
+.slide-right-leave-to {
+  right: -100vw;
+}
+.slide-right-enter-to,
+.slide-right-leave {
+  opacity: 1;
+  right: 0;
 }
 </style>
