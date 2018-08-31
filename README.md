@@ -1,6 +1,8 @@
 # mediaplayer
 
-> A Vue.js project
+> A Vue.js MediaPlayer project
+
+>Developed by wangxiao 1711
 
 ## Build Setup
 
